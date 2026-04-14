@@ -1,0 +1,17 @@
+[project]
+name = "test-app"
+
+[prompt]
+segment = "[{{.Project.Name}}]"
+
+[hooks.git]
+post-commit = ["touch /tmp/wt-hook-fired"]
+
+[hooks.enter]
+commands = ["echo entering"]
+
+[hooks.leave]
+commands = []
+
+[aliases]
+serve = "echo serving"

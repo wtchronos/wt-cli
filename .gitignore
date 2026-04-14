@@ -1,0 +1,5 @@
+/dist
+/wt
+*.test
+*.out
+test/testdata/tmp/
