@@ -3,8 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 	"text/template"
 
 	"github.com/spf13/cobra"
@@ -15,20 +13,24 @@ type shellTemplateData struct {
 }
 
 var shellCmd = &cobra.Command{
-	Use:   "shell init [bash|zsh|fish]",
-	Short: "Initialize shell integration",
+	Use:   "shell",
+	Short: "Shell integration commands",
+}
+
+var shellInitCmd = &cobra.Command{
+	Use:   "init [bash|zsh|fish]",
+	Short: "Emit eval-able shell integration script",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		shell := args[0]
-		
-		// Get absolute path to wt binary
+
 		wtPath, err := os.Executable()
 		if err != nil {
-			wtPath = "wt" // fallback
+			wtPath = "wt"
 		}
 
 		data := shellTemplateData{WtPath: wtPath}
-		
+
 		var tmplStr string
 		switch shell {
 		case "bash":
@@ -177,5 +179,6 @@ end
 `
 
 func init() {
+	shellCmd.AddCommand(shellInitCmd)
 	rootCmd.AddCommand(shellCmd)
 }
