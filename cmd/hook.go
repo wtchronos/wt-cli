@@ -3,84 +3,80 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/wtchronos/wt-cli/internal/config"
+	"github.com/wtchronos/wt-cli/internal/hooks"
 )
 
 var hookCmd = &cobra.Command{
-	Use:   "hook run <event>",
+	Use:   "hook",
+	Short: "Manage and run project hooks",
+}
+
+var hookRunCmd = &cobra.Command{
+	Use:   "run <event> [git-args...]",
 	Short: "Run hooks for the specified event",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		event := args[0]
-		
-		// Prevent recursion
+
 		if os.Getenv("WT_IN_HOOK") == "1" {
 			return
 		}
-		
-		// Find and load config
-		configPath, err := config.Find(".")
+
+		cfgPath, err := config.Find(".")
 		if err != nil {
-			// No config found, nothing to do
 			return
 		}
-		
-		cfg, err := config.Load(configPath)
+
+		cfg, err := config.Load(cfgPath)
 		if err != nil {
-			fmt.Printf("Error loading config: %v\n", err)
-			os.Exit(1)
-		}
-		
-		// Set environment variables
-		os.Setenv("WT_IN_HOOK", "1")
-		os.Setenv("WT_PROJECT_ROOT", configPath)
-		os.Setenv("WT_EVENT", event)
-		
-		var commands []string
-		
-		// Get commands based on event type
-		switch {
-		case strings.HasPrefix(event, "post-"):
-			// Git hook
-			if cfg.Hooks.Git != nil {
-				commands = cfg.Hooks.Git[event]
+			if verbose {
+				fmt.Fprintf(os.Stderr, "[wt] config error: %v\n", err)
 			}
+			return
+		}
+
+		projectRoot := filepath.Dir(cfgPath)
+		runner := &hooks.Runner{
+			ProjectName: cfg.Project.Name,
+			ProjectRoot: projectRoot,
+			Verbose:     verbose,
+		}
+
+		var commands []string
+		switch {
 		case event == "enter":
 			commands = cfg.Hooks.Enter.Commands
 		case event == "leave":
 			commands = cfg.Hooks.Leave.Commands
+		default:
+			// Git hook events (pre-commit, post-checkout, etc.)
+			if cfg.Hooks.Git != nil {
+				commands = cfg.Hooks.Git[event]
+			}
 		}
-		
-		if commands == nil {
+
+		if len(commands) == 0 {
 			return
 		}
-		
-		// Execute commands
-		for _, cmdStr := range commands {
-			if cmdStr == "" {
-				continue
-			}
-			
-			// Expand template variables
-			cmdStr = strings.ReplaceAll(cmdStr, "{{.Project.Name}}", cfg.Project.Name)
-			
-			fmt.Printf("Running hook: %s\n", cmdStr)
-			cmd := exec.Command("sh", "-c", cmdStr)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			cmd.Dir = "."
-			
-			if err := cmd.Run(); err != nil {
-				fmt.Printf("Hook failed: %v\n", err)
-			}
+
+		// Pass git hook args as WT_HOOK_ARGS env var
+		if len(args) > 1 {
+			os.Setenv("WT_HOOK_ARGS", strings.Join(args[1:], " "))
+		}
+
+		if err := runner.Run(event, commands); err != nil {
+			fmt.Fprintf(os.Stderr, "[wt] hook error: %v\n", err)
+			os.Exit(1)
 		}
 	},
 }
 
 func init() {
+	hookCmd.AddCommand(hookRunCmd)
 	rootCmd.AddCommand(hookCmd)
 }

@@ -71,16 +71,22 @@ __wt_chpwd() {
             (cd "$__WT_LAST_DIR" && "{{.WtPath}}" hook run leave 2>/dev/null || true)
         fi
         
-        # Load new aliases and run enter hooks
-        local aliases_output
+        # Load new aliases, env, and run enter hooks
+        local aliases_output env_output
         if aliases_output="$("{{.WtPath}}" aliases --load 2>/dev/null)"; then
             eval "$aliases_output"
             __WT_LOADED_ALIASES=1
+            # Inject project env vars
+            if env_output="$("{{.WtPath}}" env export 2>/dev/null)"; then
+                eval "$env_output"
+                __WT_LOADED_ENV=1
+            fi
             "{{.WtPath}}" hook run enter 2>/dev/null || true
         else
             unset __WT_LOADED_ALIASES
+            unset __WT_LOADED_ENV
         fi
-        
+
         __WT_LAST_DIR="$current"
     fi
 }
@@ -95,6 +101,11 @@ fi
 # Prompt function
 wt_prompt() {
     "{{.WtPath}}" prompt 2>/dev/null || true
+}
+
+# Convenience: wt run shortcut
+wtr() {
+    "{{.WtPath}}" run "$@"
 }
 
 # Add to PS1 if not already there
@@ -117,16 +128,21 @@ __wt_chpwd() {
             (cd "$__WT_LAST_DIR" && "{{.WtPath}}" hook run leave 2>/dev/null || true)
         fi
         
-        # Load new aliases and run enter hooks
-        local aliases_output
+        # Load new aliases, env, and run enter hooks
+        local aliases_output env_output
         if aliases_output="$("{{.WtPath}}" aliases --load 2>/dev/null)"; then
             eval "$aliases_output"
             __WT_LOADED_ALIASES=1
+            if env_output="$("{{.WtPath}}" env export 2>/dev/null)"; then
+                eval "$env_output"
+                __WT_LOADED_ENV=1
+            fi
             "{{.WtPath}}" hook run enter 2>/dev/null || true
         else
             unset __WT_LOADED_ALIASES
+            unset __WT_LOADED_ENV
         fi
-        
+
         __WT_LAST_DIR="$current"
     fi
 }
@@ -137,6 +153,11 @@ chpwd_functions+=(__wt_chpwd)
 # Prompt function
 wt_prompt() {
     "{{.WtPath}}" prompt 2>/dev/null || true
+}
+
+# Convenience: wt run shortcut
+wtr() {
+    "{{.WtPath}}" run "$@"
 }
 
 # Add to PROMPT

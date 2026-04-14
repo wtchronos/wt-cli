@@ -3,3 +3,4 @@
 *.test
 *.out
 test/testdata/tmp/
+.wt/

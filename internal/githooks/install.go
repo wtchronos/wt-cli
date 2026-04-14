@@ -18,8 +18,9 @@ func Install() error {
 		return fmt.Errorf("failed to create hooks directory: %w", err)
 	}
 
-	// List of git hooks we want to support
 	supportedHooks := []string{
+		"pre-commit",
+		"pre-push",
 		"post-checkout",
 		"post-commit",
 		"post-merge",

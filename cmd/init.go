@@ -19,9 +19,11 @@ var initCmd = &cobra.Command{
 name = "myproject"
 
 [prompt]
-segment = "[{{.Project.Name}}]"
+segment = '{{cyan (printf "[%s] " .Project.Name)}}'
 
 [hooks.git]
+pre-commit = []
+pre-push = []
 post-checkout = []
 post-merge = []
 post-commit = []
@@ -34,6 +36,19 @@ commands = []
 
 [aliases]
 # example = "command"
+
+[env]
+# PROJECT_ENV = "development"
+
+[scripts]
+# test = "go test ./..."
+# build = "go build -o bin/app ."
+# deploy = "bash scripts/deploy.sh"
+
+# [operator]
+# cortix_url = "https://command.warrencommand.dev"
+# api_key = ""
+# tags = ["active"]
 `
 			if err := os.WriteFile(configFile, []byte(template), 0644); err != nil {
 				fmt.Printf("Error creating %s: %v\n", configFile, err)

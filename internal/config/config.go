@@ -9,14 +9,23 @@ import (
 )
 
 type Config struct {
-	Project ProjectConfig `toml:"project"`
-	Prompt  PromptConfig  `toml:"prompt"`
-	Hooks   HooksConfig   `toml:"hooks"`
-	Aliases map[string]string `toml:"aliases"`
+	Project  ProjectConfig     `toml:"project"`
+	Prompt   PromptConfig      `toml:"prompt"`
+	Hooks    HooksConfig       `toml:"hooks"`
+	Aliases  map[string]string `toml:"aliases"`
+	Env      map[string]string `toml:"env"`
+	Scripts  map[string]string `toml:"scripts"`
+	Operator OperatorConfig    `toml:"operator"`
 }
 
 type ProjectConfig struct {
 	Name string `toml:"name"`
+}
+
+type OperatorConfig struct {
+	CortixURL string   `toml:"cortix_url"`
+	APIKey    string   `toml:"api_key"`
+	Tags      []string `toml:"tags"`
 }
 
 type PromptConfig struct {
