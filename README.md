@@ -34,6 +34,9 @@ go install github.com/wtchronos/wt-cli@latest
 | `wt prompt` | Print colored prompt segment |
 | `wt aliases --load/--unload` | Project-scoped shell aliases |
 | `wt completion <shell>` | Shell completions |
+| `wt agent` | Query Cortix for active services and agent status |
+| `wt log [-n 10] [-f] [-s source]` | Tail unified ops log (events, ops, audit) |
+| `wt intent <desc> [-p P0/P1/P2]` | Submit intent to Cortix intent bridge |
 | `wt version` | Version info |
 
 ## Config (`.wt.toml`)
