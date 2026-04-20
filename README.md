@@ -1,8 +1,21 @@
-# wt
+<h3 align="center">wt</h3>
+<p align="center">Per-repo hooks, shell integration, project-aware prompt, and operator event bridge — one install for every repo.</p>
 
-Personal CLI tool — one install, every repo gets shell integration,
-hook-driven automation, project scripts, environment injection, and
-operator surface integration.
+<p align="center">
+  <a href="https://warrencommand.dev"><img src="https://img.shields.io/badge/warrencommand.dev-0a1220?style=for-the-badge&logoColor=white" alt="Website" /></a>
+  <a href="https://github.com/wtchronos/wt-cli/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go" />
+</p>
+
+---
+
+### What this is
+
+A single Go binary that turns any git repo into a `wt`-aware project via a `.wt.toml` file. Shell integration auto-loads project aliases + env when you `cd` in, git hook dispatchers fire declared commands on lifecycle events, and an operator bridge emits structured events to a remote surface (Cortix) with local JSONL queue + replay for offline reliability.
+
+Built for one person's workflow across ~20 repos on Mac + VPS. Public because the shape is general.
+
+---
 
 ## Quick Install
 
